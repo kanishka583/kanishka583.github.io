@@ -30,7 +30,9 @@
 <body>
 
     <div class="container">
-        
+        <table>
+            <tr><td>
+                <tr>
         <table>
             <tr>
                 <td>
@@ -138,7 +140,7 @@
                         <th scope="col">Confirmed</th>
                         <th scope="col">Active</th>
                         <th scope="col">Recovered</th>
-                        <th scope="col">Death</th>
+                        <th scope="col">Deaths</th>
                     </tr>
                     <td id="state"></td>
                     <td id="confirmed"></td>
@@ -149,10 +151,37 @@
                 </td>
             </tr>
         </table>
-        
+        </td>
+    </tr>
+        <tr>
+        <td>
+            <table class="table">
+                <tr>
+                    <th scope="col">State</th>
+                    <th scope="col">Confirmed</th>
+                    <th scope="col">Active</th>
+                    <th scope="col">Recovered</th>
+                    <th scope="col">Deaths</th>
+                </tr>
+                <tbody id="districts"></tbody>
+            </table>
+        </td>
+    </tr>
+        </table>
     </div>
     <script type="text/javascript">
     $(document).ready(function() {
+        var ddata;
+        var xhttpd=new XMLHttpRequest();
+            xhttpd.onreadystatechange=function(){
+                if(this.readyState==4 && this.status==200){
+                    ddata=JSON.parse(this.responseText);
+                    // console.log(ddata);
+                }
+            }
+            xhttpd.open("GET","https://api.covid19india.org/state_district_wise.json",true);
+            xhttpd.send();
+            
         $('.land').mouseover(function() {
             $('#state').html($(this).attr("title"));
             $('#confirmed').html($(this).attr("confirmed"));
@@ -166,6 +195,26 @@
                 "stroke-opacity": "0.95",
                 "stroke-width": "0.5"
             });
+            for(var key in ddata){
+                if(ddata.hasOwnProperty(key)){
+                 
+                if("IN-"+ddata[key].statecode==$(this).attr("id")){
+                    // console.log(ddata[key]);
+                    // console.log("hell");
+                    $('#districts').empty();
+                    var j=0;
+                    var keys=Object.keys(ddata[key]);
+                    for(var p in ddata[key]["districtData"]){
+                        console.log(ddata[key]["districtData"][p]);
+                        var txt="<tr><td>"+p+"</td><td>"+ddata[key]["districtData"][p].confirmed+"</td><td>"+ddata[key]["districtData"][p].active+"</td><td>"+ddata[key]["districtData"][p].recovered+"</td><td>"+ddata[key]["districtData"][p].deceased+"</td><tr>";
+                        $('#districts').append(txt);
+                        console.log(txt);
+                        console.log("he")
+                        j++;
+                    }
+                }
+            }
+            }
         });
         $('.land').mouseleave(function() {
             $(this).css({
